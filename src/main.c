@@ -1,6 +1,6 @@
 #include "stdio.h"
 
 int main(void) {
-    printf("Hello, World!\n");
+    printf("This game isn't actually about a snail.\n");
     return 0;
 }
