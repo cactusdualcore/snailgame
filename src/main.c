@@ -17,7 +17,7 @@ void initialize(void) {
     const int screen_width = 800;
     const int screen_height = 450;
 
-    InitWindow(screen_width, screen_height, "DEFAULT_WINDOW_TITLE");
+    InitWindow(screen_width, screen_height, DEFAULT_WINDOW_TITLE);
     SetTargetFPS(60);
 }
 
