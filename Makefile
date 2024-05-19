@@ -6,6 +6,20 @@ TARGET_EXEC := snailgame
 BUILD_DIR := ./target
 SRC_DIRS := ./src
 
+# Adopted from https://gist.github.com/sighingnow/deee806603ec9274fd47
+OS := Unknown
+ifeq ($(OS),Windows_NT)
+	OS := Windows
+else
+	UNAME := $(shell uname -s)
+	ifeq ($(UNAME),Linux)
+		OS := Linux
+	endif
+	ifeq ($(UNAME),Darwin)
+		OS := OSX
+	endif
+endif
+
 # Find all the C and C++ files we want to compile
 # Note the single quotes around the * expressions. The shell will incorrectly expand these otherwise, but we want to send the * directly to the find command.
 SRCS := $(shell find $(SRC_DIRS) -name '*.cpp' -or -name '*.c' -or -name '*.s')
@@ -27,9 +41,21 @@ INC_FLAGS := $(addprefix -I,$(INC_DIRS))
 # These files will have .d instead of .o as the output.
 CPPFLAGS := $(INC_FLAGS) -MMD -MP
 
+# Link all necessary libraries. Honestly, you're on your own with checking that these are installed
+# and working.
+LIB_FLAGS :=
+ifeq ($(OS), Linux)
+# Also, this won't work on wayland. You probably have to link against libwayland instead of libx11.
+	LIB_FLAGS := -lraylib -lGL -lm -lpthread -ldl -lrt -lX11
+endif
+ifeq ($(OS), OSX)
+	OBJS += libraylib.a
+	LIB_FLAGS := -framework CoreVideo -framework IOKit -framework Cocoa -framework GLUT -framework OpenGL
+endif
+
 # The final build step.
 $(BUILD_DIR)/$(TARGET_EXEC): $(OBJS)
-	$(CXX) $(OBJS) -o $@ $(LDFLAGS)
+	$(CXX) $(OBJS) $(LIB_FLAGS) -o $@ $(LDFLAGS)
 
 # Build step for C source
 $(BUILD_DIR)/%.c.o: %.c
